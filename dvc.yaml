@@ -3,6 +3,8 @@ stages:
     cmd: python -m src.component.data_ingestion
     deps:
       - src/component/data_ingestion.py
+    params:
+    - data_ingestion.test_size
     outs:
       - artifacts/data_ingestion_data
 
@@ -19,6 +21,8 @@ stages:
     deps:
       - artifacts/data_preprocessing_data
       - src/component/feature_engineering.py
+    params:
+    - feature_engineering.max_features
     outs:
       - artifacts/feature_engineering_data
 
@@ -27,6 +31,9 @@ stages:
     deps:
       - artifacts/feature_engineering_data
       - src/component/model_building.py
+    params:
+    - model_building.n_estimators
+    - model_building.random_state
     outs:
       - Final_model/model.pkl
 

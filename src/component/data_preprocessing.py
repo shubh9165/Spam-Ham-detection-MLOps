@@ -11,6 +11,7 @@ import string
 import nltk
 nltk.download('stopwords')
 nltk.download('punkt')
+import yaml
 
 class DataPreprocessingConfig:
     data_preprocessing_dir=os.path.join('artifacts','data_preprocessing_data')
@@ -39,7 +40,17 @@ class DataPreprocessing:
         text = [ps.stem(word) for word in text]
         # Join the tokens back into a single string
         return " ".join(text)
-
+    
+    def load_params(self,params_path: str) -> dict:
+        """Load parameters from a YAML file."""
+        try:
+            with open(params_path, 'r') as file:
+                params = yaml.safe_load(file)
+            logging.info('Parameters retrieved from %s', params_path)
+            return params
+        except Exception as e:
+            raise CustomException(e,sys)
+        
     def processed_df(self,df, text_column='text', target_column='target')->pd.DataFrame:
 
         try:

@@ -6,6 +6,7 @@ from src.exception import CustomException
 from src.logger import logging
 from dataclasses import dataclass
 from sklearn.feature_extraction.text import TfidfVectorizer
+import yaml
 
 class FeatureEngineeringConfig:
     Feature_engineering_dir=os.path.join('artifacts','feature_engineering_data')
@@ -16,6 +17,16 @@ class FeatureEngineering:
 
     def __init__(self):
         self.feature_engineering_config=FeatureEngineeringConfig()
+
+    def load_params(self,params_path: str) -> dict:
+        """Load parameters from a YAML file."""
+        try:
+            with open(params_path, 'r') as file:
+                params = yaml.safe_load(file)
+            logging.info('Parameters retrieved from %s', params_path)
+            return params
+        except Exception as e:
+            raise CustomException(e,sys)
 
     def tfidf(self,train_df,test_df,max_features):
         logging.info("TFIDF process start")
@@ -60,6 +71,9 @@ class FeatureEngineering:
             
             logging.info("train and test processed data read sucessfully")
 
+            params = self.load_params(params_path='params.yaml')
+            max_features = params['feature_engineering']['max_features']
+
             train_df,test_df=self.tfidf(train_processed_data,test_processed_data,500)
 
             os.makedirs(self.feature_engineering_config.Feature_engineering_dir,exist_ok=True)
@@ -74,6 +88,7 @@ class FeatureEngineering:
             )
         except Exception as e:
             raise CustomException(e,sys)
+        
         
 if __name__ == '__main__':
     obj=FeatureEngineering()

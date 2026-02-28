@@ -5,7 +5,7 @@ from src.exception import CustomException
 from src.logger import logging
 from dataclasses import dataclass
 import sys
-
+import yaml
 
 @dataclass
 class DataIngestionConfig:
@@ -18,6 +18,16 @@ class DataIngestion:
     def __init__(self):
         self.data_ingestion_config=DataIngestionConfig();
         logging.info("Data Ingestion process start")
+
+    def load_params(self,params_path: str) -> dict:
+        """Load parameters from a YAML file."""
+        try:
+            with open(params_path, 'r') as file:
+                params = yaml.safe_load(file)
+            logging.info('Parameters retrieved from %s', params_path)
+            return params
+        except Exception as e:
+            raise CustomException(e,sys)
 
     def load_data(self)->pd.DataFrame:
         logging.info("spam.csv file reading process start")
@@ -42,7 +52,7 @@ class DataIngestion:
         except Exception as e:
             raise CustomException(e,sys)
 
-    def save_data(self,df:pd.DataFrame):
+    def save_data(self,df:pd.DataFrame,params):
         
         logging.info("Process of saving train test model start")
 
@@ -52,7 +62,10 @@ class DataIngestion:
             df.to_csv(self.data_ingestion_config.raw_data_path,index=False,header=True)
             logging.info("raw data saved sucessfully")
 
-            train_set,test_set=train_test_split(df,test_size=0.20,random_state=42)
+            
+            test_size = params['data_ingestion']['test_size']
+             
+            train_set,test_set=train_test_split(df,test_size=test_size,random_state=42)
 
             train_set.to_csv(self.data_ingestion_config.train_data_path,header=True,index=False)
             logging.info("train data saved sucessfully")
@@ -68,7 +81,8 @@ class DataIngestion:
         try:
             df=self.load_data()
             final_df=self.preprocessing(df)
-            self.save_data(final_df)
+            params = self.load_params(params_path='params.yaml')
+            self.save_data(final_df,params=params)
 
             return (
                 self.data_ingestion_config.train_data_path,

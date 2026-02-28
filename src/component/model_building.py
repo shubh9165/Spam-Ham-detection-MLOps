@@ -5,6 +5,7 @@ from src.exception import CustomException
 from src.logger import logging
 import pickle
 from sklearn.ensemble import RandomForestClassifier
+import yaml
 
 
 class ModelBuildingConfig:
@@ -16,12 +17,26 @@ class ModelBuilding:
     def __init__(self):
         self.model_building_config=ModelBuildingConfig()
 
+
+    def load_params(self,params_path: str) -> dict:
+        """Load parameters from a YAML file."""
+        try:
+            with open(params_path, 'r') as file:
+                params = yaml.safe_load(file)
+            logging.info('Parameters retrieved from %s', params_path)
+            return params
+        except Exception as e:
+            raise CustomException(e,sys)
+        
     def model_training(self,X_train,y_train):
 
         try:
             logging.info('model training start')
 
-            cls=RandomForestClassifier(n_estimators=22,random_state=2)
+            params = self.load_params('params.yaml')['model_building']
+
+            cls=RandomForestClassifier(n_estimators=params['n_estimators'], random_state=params['random_state'])
+
 
             cls.fit(X_train,y_train)
             logging.info('model training done')
