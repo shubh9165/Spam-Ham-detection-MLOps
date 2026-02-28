@@ -49,3 +49,36 @@ stages:
       md5: 55210246bc3e54f40dd05cf6a5177e0b.dir
       size: 10981553
       nfiles: 2
+  model_building:
+    cmd: python -m src.component.model_building
+    deps:
+    - path: artifacts/feature_engineering_data
+      hash: md5
+      md5: 55210246bc3e54f40dd05cf6a5177e0b.dir
+      size: 10981553
+      nfiles: 2
+    - path: src/component/model_building.py
+      hash: md5
+      md5: afefa213a85a3beb8039d0ea59b57586
+      size: 1950
+    outs:
+    - path: Final_model/model.pkl
+      hash: md5
+      md5: 1ab5244ccdc226ed266cccd745c29723
+      size: 1578376
+  model_evaluation:
+    cmd: python -m src.component.model_evaluation
+    deps:
+    - path: Final_model/model.pkl
+      hash: md5
+      md5: 1ab5244ccdc226ed266cccd745c29723
+      size: 1578376
+    - path: src/component/model_evaluation.py
+      hash: md5
+      md5: a75d9b9ab3cde21b798635610d50ad38
+      size: 2627
+    outs:
+    - path: reports/report.json
+      hash: md5
+      md5: 49925b2aeb93a1b5aaa7f74d27e52b14
+      size: 145
